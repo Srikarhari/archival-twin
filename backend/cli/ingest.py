@@ -93,23 +93,22 @@ def init_db(db_path: Path) -> sqlite3.Connection:
     return conn
 
 
-def init_face_engine(det_size: tuple[int, int] = (640, 640)):
-    """Initialize InsightFace. Returns the FaceAnalysis app or exits."""
+def init_face_engine():
+    """Initialize DeepFace. Returns the DeepFace module or exits."""
     try:
-        from insightface.app import FaceAnalysis
+        from deepface import DeepFace  # type: ignore[import-untyped]
+        # Warm up model
+        dummy = np.zeros((64, 64, 3), dtype=np.uint8)
+        try:
+            DeepFace.represent(dummy, model_name="Facenet512",
+                               detector_backend="opencv", enforce_detection=False)
+        except Exception:
+            pass
+        return DeepFace
     except ImportError:
-        print("ERROR: InsightFace is not installed.", file=sys.stderr)
-        print("Install with: pip install insightface onnxruntime", file=sys.stderr)
+        print("ERROR: DeepFace is not installed.", file=sys.stderr)
+        print("Install with: pip install deepface tf-keras", file=sys.stderr)
         sys.exit(1)
-
-    providers = [
-        "CUDAExecutionProvider",
-        "CoreMLExecutionProvider",
-        "CPUExecutionProvider",
-    ]
-    app = FaceAnalysis(name="buffalo_l", providers=providers)
-    app.prepare(ctx_id=0, det_size=det_size)
-    return app
 
 
 def scan_images(directory: Path) -> list[Path]:
@@ -186,34 +185,48 @@ def ingest(
             skipped += 1
             continue
 
-        # Detect faces (InsightFace expects RGB)
-        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-        faces = face_app.get(rgb)
-
-        if len(faces) == 0:
+        # Detect faces + extract embedding via DeepFace
+        try:
+            results = face_app.represent(
+                bgr,
+                model_name="Facenet512",
+                detector_backend="opencv",
+                enforce_detection=True,
+            )
+        except ValueError:
             print("SKIP (no face)")
             skipped += 1
             continue
 
-        if len(faces) > 1:
-            print(f"SKIP ({len(faces)} faces)")
+        if len(results) == 0:
+            print("SKIP (no face)")
             skipped += 1
             continue
 
-        face = faces[0]
-        det_score = float(face.det_score)
+        if len(results) > 1:
+            print(f"SKIP ({len(results)} faces)")
+            skipped += 1
+            continue
+
+        face = results[0]
+        det_score = float(face.get("face_confidence", 0.0))
         if det_score < 0.5:
             print(f"SKIP (low confidence {det_score:.2f})")
             skipped += 1
             continue
 
         # Bounding box
-        x1, y1, x2, y2 = face.bbox
-        bbox_x, bbox_y = float(x1), float(y1)
-        bbox_w, bbox_h = float(x2 - x1), float(y2 - y1)
+        region = face.get("facial_area", {})
+        bbox_x = float(region.get("x", 0))
+        bbox_y = float(region.get("y", 0))
+        bbox_w = float(region.get("w", 0))
+        bbox_h = float(region.get("h", 0))
 
-        # Embedding
-        embedding = face.normed_embedding.astype(np.float32)
+        # Embedding (L2 normalize)
+        embedding = np.array(face["embedding"], dtype=np.float32)
+        norm = np.linalg.norm(embedding)
+        if norm > 0:
+            embedding = embedding / norm
         embedding_blob = embedding.tobytes()
 
         # File hash

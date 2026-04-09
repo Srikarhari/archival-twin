@@ -33,6 +33,7 @@ class TwinResult(BaseModel):
     confidence_label: str
     pose_tag: str
     age_band: str
+    dominant_emotion: str
     original_caption: str | None = None
     generated_caption: str
     metadata: TwinMetadata

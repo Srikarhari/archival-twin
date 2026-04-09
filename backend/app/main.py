@@ -30,11 +30,11 @@ async def lifespan(app: FastAPI):
         engine = FaceEngine()
         engine.initialize()
         if engine.is_available:
-            logger.info("InsightFace engine ready (GPU: %s)", engine.gpu_available)
+            logger.info("DeepFace engine ready (GPU: %s)", engine.gpu_available)
         else:
-            raise ImportError("InsightFace loaded but not available")
+            raise ImportError("DeepFace loaded but not available")
     except Exception as exc:
-        logger.warning("InsightFace unavailable (%s) — using degraded stub", exc)
+        logger.warning("DeepFace unavailable (%s) — using degraded stub", exc)
         from app.services.face_engine_stub import FaceEngineStub
         engine = FaceEngineStub()
         engine.initialize()

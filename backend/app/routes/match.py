@@ -52,8 +52,8 @@ async def post_match(req: MatchRequest):
             content=MatchError(
                 error="engine_unavailable",
                 detail=(
-                    "Face engine is not available. InsightFace is not installed or failed to load. "
-                    "Install with: pip install insightface onnxruntime"
+                    "Face engine is not available. DeepFace is not installed or failed to load. "
+                    "Install with: pip install deepface tf-keras"
                 ),
             ).model_dump(),
         )
@@ -183,6 +183,7 @@ async def post_match(req: MatchRequest):
         confidence_label=match_result.confidence_label,
         pose_tag=face_result.pose_tag,
         age_band=face_result.age_band,
+        dominant_emotion=face_result.dominant_emotion,
         original_caption=face_record.original_caption,
         generated_caption=generated_caption,
         metadata=TwinMetadata(

@@ -13,14 +13,11 @@ dependencies = [
     "aiosqlite",
     "numpy",
     "opencv-python-headless",
-    "insightface",
-    "onnxruntime",
+    "deepface",
+    "tf-keras",
 ]
 
 [project.optional-dependencies]
-gpu = [
-    "onnxruntime-gpu",
-]
 dev = [
     "pytest",
     "httpx",

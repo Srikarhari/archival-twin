@@ -23,6 +23,7 @@ export interface TwinResult {
   confidence_label: string;
   pose_tag: string;
   age_band: string;
+  dominant_emotion: string;
   original_caption: string | null;
   generated_caption: string;
   metadata: TwinMetadata;

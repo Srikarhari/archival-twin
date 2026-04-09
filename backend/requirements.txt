@@ -1,5 +1,4 @@
 # Archival Twin — Backend (CPU / macOS dev)
-# TODO: Pin exact versions before deployment
 fastapi
 uvicorn[standard]
 python-multipart
@@ -7,5 +6,5 @@ pydantic-settings
 aiosqlite
 numpy
 opencv-python-headless
-insightface
-onnxruntime
+deepface
+tf-keras

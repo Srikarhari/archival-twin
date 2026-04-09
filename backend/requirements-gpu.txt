@@ -1,5 +1,4 @@
 # Archival Twin — Backend (NVIDIA GPU / Windows deployment)
-# TODO: Pin exact versions; match onnxruntime-gpu to installed CUDA version
 fastapi
 uvicorn[standard]
 python-multipart
@@ -7,5 +6,5 @@ pydantic-settings
 aiosqlite
 numpy
 opencv-python-headless
-insightface
-onnxruntime-gpu
+deepface
+tf-keras

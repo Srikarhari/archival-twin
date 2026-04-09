@@ -21,7 +21,7 @@ def set_dependencies(face_engine, matcher) -> None:  # noqa: ANN001
 @router.get("/health", response_model=HealthResponse)
 async def health(response: Response) -> HealthResponse:
     engine_available = _face_engine is not None and _face_engine.is_available
-    engine_name = "insightface" if engine_available else "unavailable"
+    engine_name = "deepface" if engine_available else "unavailable"
     archive_count = _matcher.archive_count if _matcher else 0
     gpu = _face_engine.gpu_available if _face_engine else False
 

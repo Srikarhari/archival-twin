@@ -1,7 +1,6 @@
 """SQLite connection management via aiosqlite."""
 
 import aiosqlite
-from pathlib import Path
 
 from app.config import settings
 
@@ -72,7 +71,7 @@ async def get_db() -> aiosqlite.Connection:
 
 async def init_db() -> None:
     global _db
-    db_path: Path = settings.db_path
+    db_path = settings.db_path
     db_path.parent.mkdir(parents=True, exist_ok=True)
     _db = await aiosqlite.connect(str(db_path))
     _db.row_factory = aiosqlite.Row

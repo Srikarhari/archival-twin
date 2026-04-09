@@ -6,7 +6,6 @@ import logging
 import os
 import shutil
 import tempfile
-from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
@@ -42,8 +41,8 @@ def set_dependencies(face_engine, matcher) -> None:  # noqa: ANN001
     _matcher = matcher
 
 
-@router.post("/match")
-async def post_match(req: MatchRequest) -> MatchResponse | JSONResponse:
+@router.post("/match", response_model=MatchResponse)
+async def post_match(req: MatchRequest):
     timer = StageTimer()
 
     # --- Engine check ---

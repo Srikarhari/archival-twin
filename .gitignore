@@ -57,3 +57,4 @@ $RECYCLE.BIN/
 *.swp
 *.swo
 *~
+backend/data/

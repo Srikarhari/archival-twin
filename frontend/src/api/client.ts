@@ -3,6 +3,8 @@ import type {
   ConfigResponse,
   MatchResponse,
   MatchError,
+  RetrievalSearchResponse,
+  RetrievalStatusResponse,
 } from "./types";
 
 const BASE = import.meta.env.VITE_API_URL ?? "";
@@ -24,6 +26,25 @@ export async function postMatch(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ image: imageBase64 }),
+  });
+  return res.json();
+}
+
+// --- v2: book retrieval ---
+
+export async function getRetrievalStatus(): Promise<RetrievalStatusResponse> {
+  const res = await fetch(`${BASE}/api/retrieval/status`);
+  return res.json();
+}
+
+export async function postRetrievalSearch(
+  query: string,
+  topK = 5,
+): Promise<RetrievalSearchResponse> {
+  const res = await fetch(`${BASE}/api/retrieval/search`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, top_k: topK }),
   });
   return res.json();
 }

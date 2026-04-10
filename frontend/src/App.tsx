@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import SplitScreen from "./components/SplitScreen";
+import ArchivalVoicePanel from "./components/ArchivalVoicePanel";
 import { useCamera } from "./hooks/useCamera";
 import { useMatch } from "./hooks/useMatch";
 import { getHealth } from "./api/client";
@@ -30,14 +31,17 @@ export default function App() {
   }, [captureFrame, runMatch]);
 
   return (
-    <SplitScreen
-      videoRef={videoRef}
-      cameraReady={cameraReady}
-      cameraError={cameraError}
-      matchState={matchState}
-      backendStatus={backendStatus}
-      onCapture={handleCapture}
-      onReset={reset}
-    />
+    <>
+      <SplitScreen
+        videoRef={videoRef}
+        cameraReady={cameraReady}
+        cameraError={cameraError}
+        matchState={matchState}
+        backendStatus={backendStatus}
+        onCapture={handleCapture}
+        onReset={reset}
+      />
+      <ArchivalVoicePanel />
+    </>
   );
 }

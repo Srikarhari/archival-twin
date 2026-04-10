@@ -7,6 +7,15 @@ interface Props {
 
 const BASE = import.meta.env.VITE_API_URL ?? "";
 
+// Cross-platform basename: takes a path stored as POSIX in the DB
+// (e.g. "test_collection/12 _Biala_, …png") and returns just the
+// final segment.
+function basename(path: string): string {
+  if (!path) return "";
+  const slash = path.lastIndexOf("/");
+  return slash >= 0 ? path.slice(slash + 1) : path;
+}
+
 export default function TwinPanel({ twin, visible }: Props) {
   return (
     <div style={container}>
@@ -29,6 +38,11 @@ export default function TwinPanel({ twin, visible }: Props) {
                 <span style={emotionBadge}>{twin.dominant_emotion.toUpperCase()}</span>
               )}
             </p>
+            {twin.filename && (
+              <p style={filenameLine} title={twin.filename}>
+                {basename(twin.filename)}
+              </p>
+            )}
             {twin.metadata.title && (
               <p style={title}>{twin.metadata.title}</p>
             )}
@@ -123,6 +137,16 @@ const scoreValue: React.CSSProperties = {
   fontFamily: "var(--font-mono)",
   fontSize: 12,
   color: "var(--color-text-dim)",
+};
+
+const filenameLine: React.CSSProperties = {
+  fontFamily: "var(--font-mono)",
+  fontSize: 10,
+  letterSpacing: "0.04em",
+  color: "var(--color-text-dim)",
+  margin: 0,
+  wordBreak: "break-all",
+  lineHeight: 1.4,
 };
 
 const title: React.CSSProperties = {

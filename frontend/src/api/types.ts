@@ -58,3 +58,29 @@ export interface ConfigResponse {
   auto_capture_enabled: boolean;
   capture_cooldown_ms: number;
 }
+
+// --- v2: book retrieval ---
+
+export interface RetrievalHit {
+  id: string;
+  source_file: string;
+  chunk_index: number;
+  text: string;
+  word_count: number;
+  section: string | null;
+  page: number | null;
+  score: number;
+}
+
+export interface RetrievalSearchResponse {
+  success: boolean;
+  total_chunks: number;
+  query: string;
+  results: RetrievalHit[];
+}
+
+export interface RetrievalStatusResponse {
+  ready: boolean;
+  total_chunks: number;
+  sources: string[];
+}

@@ -1,26 +1,86 @@
-# Archival Twin
+# Archival Twin — v2 (Experimental)
 
-An art-installation web app that finds a visitor's closest visual match in a colonial-era photographic archive.
+This is the **experimental v2 copy** of the Archival Twin project.
 
-A visitor stands before a camera. The system captures their face, compares it against a pre-built archive of historical photographs, and returns the single closest match — exposing the mechanics of machine vision and the assumptions embedded in archival classification systems.
+The original `archival-twin/` folder remains the **stable exhibition version** and must not be modified.
 
-## Project Structure
+## What's new in v2
 
-- `backend/` — Python FastAPI server (face detection, embedding, matching)
-- `frontend/` — React + Vite client (webcam capture, split-screen display)
-- `Faces_FullArchive/` — Pre-built archive of face images (not tracked in git)
-- `Latest_match/` — Output folder for the most recent match (single file, overwritten)
-- `docs/` — Setup, deployment, and ethics documentation
+- **Book-text retrieval**: ingest, chunk, and search archival book text
+- **Archival voice response**: a new UI panel that surfaces relevant book passages alongside face matches
+- All v1 face-match functionality is preserved and unchanged
 
-## Quick Start
+## Project structure (v2 additions)
 
-See `docs/installation_setup.md` for full instructions.
+```
+backend/
+  data/book/
+    raw/           ← drop raw .txt book files here
+    processed/     ← cleaned text (generated)
+    chunks/        ← chunked JSON (generated)
+  scripts/
+    process_book.py   ← book text processing pipeline
+  app/
+    services/
+      book_retriever.py   ← retrieval service
+    routes/
+      retrieval.py        ← /api/retrieval/* endpoints
+frontend/
+  src/components/
+    ArchivalVoicePanel.tsx  ← new UI panel (additive)
+```
 
-## Target Collections
+## Running on Mac
 
-- NYPL People of India
-- British Museum / Maurice Vidal Portman (Andaman Islands)
+```bash
+# Backend
+cd archival-twin-v2/backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python run.py
 
-## Ethics
+# Frontend (separate terminal)
+cd archival-twin-v2/frontend
+npm install
+npm run dev
+```
 
-This system does not classify visitors by race, ethnicity, caste, nationality, religion, or any protected trait. See `docs/ethics_notes.md`.
+## Running on Windows
+
+```powershell
+# Backend
+cd archival-twin-v2\backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python run.py
+
+# Frontend (separate terminal)
+cd archival-twin-v2\frontend
+npm install
+npm run dev
+```
+
+## Cross-platform notes
+
+- All file paths use `pathlib.Path` (Python) or relative URLs (frontend) — no hardcoded Mac paths
+- Startup commands documented for both Mac and Windows
+- Avoid OS-specific shell commands in scripts; use Python's `pathlib` / `shutil` instead
+
+## Book text ingestion (Phase A — scaffolding only)
+
+The processing pipeline is ready but no book text is loaded yet. To process a book:
+
+```bash
+cd archival-twin-v2/backend
+python -m scripts.process_book --input data/book/raw/your_book.txt
+```
+
+The retrieval endpoint will automatically load chunks on next server start.
+
+## Architecture decisions
+
+- Retrieval is additive: new routes, new service, new UI panel — nothing removed
+- Keyword-based search is a placeholder; will be replaced with embedding similarity in Phase B
+- The `ArchivalVoicePanel` component is self-contained and does not modify existing components

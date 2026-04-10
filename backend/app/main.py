@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from app.config import settings, PROJECT_ROOT
 from app.db.database import init_db, close_db
 from app.services.matcher import Matcher
+from app.services.book_retriever import BookRetriever
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s — %(message)s")
@@ -44,10 +45,19 @@ async def lifespan(app: FastAPI):
     count = await matcher.load_embeddings()
     logger.info("Matcher loaded %d archive embeddings", count)
 
+    # Book retriever (v2 — additive, does not affect face match)
+    retriever = BookRetriever()
+    chunk_count = retriever.load_chunks()
+    if chunk_count > 0:
+        logger.info("BookRetriever loaded %d chunks", chunk_count)
+    else:
+        logger.info("BookRetriever: no chunks found yet (add book text to backend/data/book/raw/)")
+
     # Inject into route modules
-    from app.routes import health, match
+    from app.routes import health, match, retrieval
     health.set_dependencies(engine, matcher)
     match.set_dependencies(engine, matcher)
+    retrieval.set_dependencies(retriever)
 
     yield
 
@@ -71,10 +81,12 @@ app.add_middleware(
 from app.routes.health import router as health_router
 from app.routes.archive import router as archive_router
 from app.routes.match import router as match_router
+from app.routes.retrieval import router as retrieval_router
 
 app.include_router(health_router)
 app.include_router(archive_router)
 app.include_router(match_router)
+app.include_router(retrieval_router)
 
 # Serve frontend static build if it exists
 frontend_dist = PROJECT_ROOT / "frontend" / "dist"
